@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">HomeBookKeeping</string>
+    <string name="add_trans">Добавить транзакцию</string>
+    <string name="add_wallet_name">Введине название счёта</string>
+    <string name="button_add">Добавить</string>
+    <string name="add_trans_name">Введите данные о транзакции</string>
+    <string name="income">Приход</string>
+    <string name="expense">Расход</string>
+    <string name="roubles">Рубли</string>
+    <string name="euro">Евро</string>
+    <string name="dollars">Доллары</string>
+    <string name="comment">Комментарий</string>
+    <string name="money">Сумма</string>
+    <string name="money_course">Автоматически выбирать курс валют</string>
+    <string name="never">Никогда</string>
+    <string name="on_exit">При выходе</string>
+    <string name="each_day">Ежедневно</string>
+    <string name="synchronize">Синхронизировать</string>
+    <string name="load_from_file">Восстановить из файла</string>
 </resources>
