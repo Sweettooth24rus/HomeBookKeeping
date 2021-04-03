@@ -28,10 +28,7 @@ public class WalletActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("DB", "start write");
-                Log.d("DB", walletName.getText().toString());
                 dbComands.AddWallet(db, walletName.getText().toString());
-                Log.d("DB", "EndAddWallet");
                 startActivity(new Intent(WalletActivity.this, MainActivity.class));
             }
         });
