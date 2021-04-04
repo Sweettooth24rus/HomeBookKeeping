@@ -32,6 +32,28 @@ public class DBComands extends SQLiteOpenHelper {
         return str;
     }
 
+    public static Cursor getWallet(SQLiteDatabase db, String searchName) {
+        String sName;
+        Cursor cursor = db.query("Wallets", new String[] {"_id", "Name"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        Log.d("DB", "1");
+        for (int i = 0; i < cursor.getCount(); i++) {
+            sName = cursor.getString(cursor.getColumnIndex("Name"));
+            Log.d("DB", "2++");
+            Log.d("DB", sName);
+            //Log.d("DB", cursor.getString(cursor.getColumnIndex("Name")));
+            Log.d("DB", searchName);
+            if (sName.equals(searchName)) {
+                Log.d("DB", "2.6");
+                break;
+            }
+            Log.d("DB", "2--");
+            cursor.moveToNext();
+        }
+        Log.d("DB", "3");
+        return cursor;
+    }
+
     public static Integer getMoney(SQLiteDatabase db, Integer number) {
         Integer sum = 0;
         Cursor cursor = db.query("DATABASE" + number.toString(), new String[] {"Sum", "Val"}, null, null, null, null, null);
@@ -55,12 +77,19 @@ public class DBComands extends SQLiteOpenHelper {
     }
 
     public static void AddWallet(SQLiteDatabase db, String walletName) {
-        Integer number;
+        int number;
         db.execSQL("INSERT INTO Wallets (Name) VALUES (" + QuotedStr(walletName) + ")");
         Cursor cursor = db.query("Wallets", new String[] {"_id", "NAME"}, null, null, null, null, null);
         cursor.moveToLast();
         number = cursor.getInt(cursor.getColumnIndex("_id"));
         db.execSQL("CREATE TABLE DATABASE" + number + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, DateTrans DATE, Sum INTEGER, Val INTEGER, Comment VARCHAR(255))");
         db.execSQL("INSERT INTO DATABASE" + number + " (DateTrans, Sum, Val, Comment) VALUES (0, 0, 0, '')");
+    }
+
+    public static void AddTrans(SQLiteDatabase db, String walletName, String date, String sum, int val, String comment) {
+        int number;
+        Cursor cursor = getWallet(db, walletName);
+        number = cursor.getInt(cursor.getColumnIndex("_id"));
+        db.execSQL("INSERT INTO DATABASE" + number + " (DateTrans, Sum, Val, Comment) VALUES (" + QuotedStr(date) + ", " + Integer.parseInt(sum) + ", " + val + ", " + QuotedStr(comment) + ")");
     }
 }

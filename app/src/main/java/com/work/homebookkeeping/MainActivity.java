@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
             name.setText(cursor.getString(cursor.getColumnIndex("Name")));
             number = cursor.getInt(cursor.getColumnIndex("_id"));
             money.setText(DBComands.getMoney(db, number).toString());
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             name.setText("Ни одного счёта не создано");
             money.setText("");
             dbComands.onCreate(db);
@@ -52,24 +51,48 @@ public class MainActivity extends AppCompatActivity {
         options.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String number;
-                Cursor cursor = db.query("Wallets", new String[] {"_id", "Name"}, null, null, null, null, null);
+                String nname;
+                Cursor cursor = db.query("Wallets", new String[]{"_id", "Name"}, null, null, null, null, null);
                 cursor.moveToFirst();
                 do {
-                    number = cursor.getString(cursor.getColumnIndex("Name"));
-                    Log.d("DB", number);
+                    nname = cursor.getString(cursor.getColumnIndex("Name"));
+                    Log.d("DB", nname);
                 } while (cursor.moveToNext());
                 //startActivity(new Intent(MainActivity.this, OptionsActivity.class));
                 //for (int i = 0; i < 100; i++)
                 //db.execSQL("drop table if exists DATABASE" + i);
                 //db.execSQL("drop table if exists Wallets");
+                Integer number;
+                String sName;
+                String searchName = name.getText().toString();
+                cursor = DBComands.getWallet(db, searchName);
+                try {
+                    //name.setText(cursor.getString(cursor.getColumnIndex("Name")));
+                    number = cursor.getInt(cursor.getColumnIndex("_id"));
+                    cursor = db.query("DATABASE" + number.toString(), new String[]{"_id", "DateTrans", "Sum", "Val", "Comment"}, null, null, null, null, null);
+                    cursor.moveToFirst();
+                    for (int i = 0; i < cursor.getCount(); i++) {
+                        sName = String.valueOf(cursor.getInt(cursor.getColumnIndex("_id"))) + " ";
+                        sName = sName + cursor.getString(cursor.getColumnIndex("DateTrans")) + " ";
+                        sName = sName + String.valueOf(cursor.getInt(cursor.getColumnIndex("Sum"))) + " ";
+                        sName = sName + String.valueOf(cursor.getInt(cursor.getColumnIndex("Val"))) + " ";
+                        sName = sName + cursor.getString(cursor.getColumnIndex("Comment"));
+                        Log.d("DB", sName);
+                        cursor.moveToNext();
+                    }
+                } catch (Exception e) {
+                    Log.d("DB", "e");
+                    Log.d("DB", String.valueOf(cursor.moveToNext()));
+                }
             }
         });
 
         trans.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, TransActivity.class));
+                Intent intent = new Intent(MainActivity.this, TransActivity.class);
+                intent.putExtra("name", name.getText().toString());
+                startActivity(intent);
             }
         });
 
@@ -83,37 +106,16 @@ public class MainActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Integer number;
-                String sName;
+                int number;
                 String searchName = name.getText().toString();
-                Cursor cursor = db.query("Wallets", new String[] {"_id", "Name"}, null, null, null, null, null);
-                cursor.moveToFirst();
-                Log.d("DB", "1");
-
-                do {
-                    sName = cursor.getString(cursor.getColumnIndex("Name"));
-                    Log.d("DB", "2++");
-                    Log.d("DB", sName);
-                    //Log.d("DB", cursor.getString(cursor.getColumnIndex("Name")));
-                    Log.d("DB", searchName);
-                    if (sName.equals(searchName) && (!cursor.moveToNext())) {
-                        Log.d("DB", "2.4");
-                        cursor.moveToFirst();
-                        break;
-                    }
-                    else if (sName.equals(searchName)) {
-                        Log.d("DB", "2.6");
-                        break;
-                    }
-                    Log.d("DB", "2--");
-                } while (cursor.moveToNext());
-                Log.d("DB", "3");
+                Cursor cursor = DBComands.getWallet(db, searchName);
+                if (!cursor.moveToNext())
+                    cursor.moveToFirst();
                 try {
                     name.setText(cursor.getString(cursor.getColumnIndex("Name")));
                     number = cursor.getInt(cursor.getColumnIndex("_id"));
                     money.setText(DBComands.getMoney(db, number).toString());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     Log.d("DB", "e");
                     Log.d("DB", String.valueOf(cursor.moveToNext()));
                 }
