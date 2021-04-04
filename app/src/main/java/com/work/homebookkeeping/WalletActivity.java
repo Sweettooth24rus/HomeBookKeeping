@@ -28,7 +28,7 @@ public class WalletActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbComands.AddWallet(db, walletName.getText().toString());
+                DBComands.addWallet(db, walletName.getText().toString());
                 startActivity(new Intent(WalletActivity.this, MainActivity.class));
             }
         });

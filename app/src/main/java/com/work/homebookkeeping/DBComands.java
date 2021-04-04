@@ -1,5 +1,6 @@
 package com.work.homebookkeeping;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
@@ -25,7 +26,12 @@ public class DBComands extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {}
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        for (int j = 0; j < 100; j++)
+            db.execSQL("drop table if exists DATABASE" + i);
+        db.execSQL("drop table if exists Wallets");
+        onCreate(db);
+    }
 
     static String QuotedStr(String str) {
         str = "'" + str + "'";
@@ -55,8 +61,8 @@ public class DBComands extends SQLiteOpenHelper {
     }
 
     public static Integer getMoney(SQLiteDatabase db, Integer number) {
-        Integer sum = 0;
-        Cursor cursor = db.query("DATABASE" + number.toString(), new String[] {"Sum", "Val"}, null, null, null, null, null);
+        int sum = 0;
+        @SuppressLint("Recycle") Cursor cursor = db.query("DATABASE" + number.toString(), new String[] {"Sum", "Val"}, null, null, null, null, null);
         cursor.moveToFirst();
         do {
             switch (cursor.getInt(cursor.getColumnIndex("Val"))) {
@@ -76,17 +82,25 @@ public class DBComands extends SQLiteOpenHelper {
         return sum;
     }
 
-    public static void AddWallet(SQLiteDatabase db, String walletName) {
+    public static void addWallet(SQLiteDatabase db, String walletName) {
         int number;
         db.execSQL("INSERT INTO Wallets (Name) VALUES (" + QuotedStr(walletName) + ")");
-        Cursor cursor = db.query("Wallets", new String[] {"_id", "NAME"}, null, null, null, null, null);
+        @SuppressLint("Recycle") Cursor cursor = db.query("Wallets", new String[] {"_id", "NAME"}, null, null, null, null, null);
         cursor.moveToLast();
         number = cursor.getInt(cursor.getColumnIndex("_id"));
         db.execSQL("CREATE TABLE DATABASE" + number + " (_id INTEGER PRIMARY KEY AUTOINCREMENT, DateTrans DATE, Sum INTEGER, Val INTEGER, Comment VARCHAR(255))");
         db.execSQL("INSERT INTO DATABASE" + number + " (DateTrans, Sum, Val, Comment) VALUES (0, 0, 0, '')");
     }
 
-    public static void AddTrans(SQLiteDatabase db, String walletName, String date, String sum, int val, String comment) {
+    public static void deleteWallet(SQLiteDatabase db, String walletName) {
+        int number;
+        Cursor cursor = getWallet(db, walletName);
+        number = cursor.getInt(cursor.getColumnIndex("_id"));
+        db.execSQL("DROP TABLE DATABASE" + number);
+        db.execSQL("DELETE FROM Wallets WHERE _id = " + number);
+    }
+
+    public static void addTrans(SQLiteDatabase db, String walletName, String date, String sum, int val, String comment) {
         int number;
         Cursor cursor = getWallet(db, walletName);
         number = cursor.getInt(cursor.getColumnIndex("_id"));

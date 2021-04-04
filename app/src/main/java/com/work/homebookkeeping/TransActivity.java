@@ -1,5 +1,6 @@
 package com.work.homebookkeeping;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class TransActivity extends AppCompatActivity implements CompoundButton.O
     RadioButton dollar;
     EditText comment;
 
+    @SuppressLint("SimpleDateFormat")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +75,7 @@ public class TransActivity extends AppCompatActivity implements CompoundButton.O
                     val = 2;
                 if (!inExCome.isChecked())
                     money = "-" + money;
-                DBComands.AddTrans(db, intent.getStringExtra("name"), dateTrans.getText().toString(), money, val, comment.getText().toString());
+                DBComands.addTrans(db, intent.getStringExtra("name"), dateTrans.getText().toString(), money, val, comment.getText().toString());
                 startActivity(new Intent(TransActivity.this, MainActivity.class));
             }
         });
