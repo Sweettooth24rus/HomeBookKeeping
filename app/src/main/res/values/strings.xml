@@ -6,9 +6,9 @@
     <string name="add_trans_name">Введите данные о транзакции</string>
     <string name="income">Приход</string>
     <string name="expense">Расход</string>
-    <string name="roubles">Рубли</string>
+    <string name="roubles">Рубль</string>
     <string name="euro">Евро</string>
-    <string name="dollars">Доллары</string>
+    <string name="dollars">Доллар</string>
     <string name="comment">Комментарий</string>
     <string name="money">Сумма</string>
     <string name="money_course">Автоматически выбирать курс валют</string>
