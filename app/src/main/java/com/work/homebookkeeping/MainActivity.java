@@ -5,7 +5,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -32,8 +34,11 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView transes;
     TransAdapter transAdapter;
 
+    SharedPreferences sharedPreferences;
     DBComands dbComands;
     SQLiteDatabase db;
+
+    public static HashMap<String, Double> valute;
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
@@ -52,22 +57,36 @@ public class MainActivity extends AppCompatActivity {
         dbComands = new DBComands(this);
         db = dbComands.getWritableDatabase();
 
+        sharedPreferences = getSharedPreferences(getString(R.string.save_val_file), Context.MODE_PRIVATE);
+        valute = new HashMap<String, Double>();
+
+        /*try {
+            valute.clear();
+            valute.put(getString(R.string.roubles), 1d);
+            valute.put(getString(R.string.euro), 90d);
+            valute.put(getString(R.string.dollars), 76d);
+            if (sharedPreferences.contains(getString(R.string.euro))) {
+                valute.remove(getString(R.string.euro));
+                valute.put(getString(R.string.euro), Double.parseDouble(sharedPreferences.getString(getString(R.string.euro), "90")));
+            }
+            if (sharedPreferences.contains(getString(R.string.dollars))) {
+                valute.remove(getString(R.string.dollars));
+                valute.put(getString(R.string.dollars), Double.parseDouble(sharedPreferences.getString(getString(R.string.dollars), "90")));
+            }
+        }
+        catch (Exception e) {
+            Log.d("DB", e.getMessage());
+        }
+
         initTranses();
         fillFields(db);
-        fillTranses(db);
-
-        Log.d("DB", String.valueOf(R.string.euro));
+        fillTranses(db);*/
 
         options.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("Recycle")
             @Override
             public void onClick(View view) {
-
-                HashMap<String, Double> a = new HashMap<String, Double>();
-                a.put("Евро", (double) 90);
-                a.put("Доллар", (double) 76);
-                DBComands.setCourses(db, a);
-                //startActivity(new Intent(MainActivity.this, OptionsActivity.class));
+                startActivity(new Intent(MainActivity.this, OptionsActivity.class));
             }
         });
 
@@ -83,7 +102,9 @@ public class MainActivity extends AppCompatActivity {
         wallet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("DB", "wallet");
                 startActivity(new Intent(MainActivity.this, WalletActivity.class));
+                Log.d("DB", "endwallet");
             }
         });
 
@@ -129,21 +150,55 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        try {
+            valute.clear();
+            valute.put(getString(R.string.roubles), 1d);
+            valute.put(getString(R.string.euro), 90d);
+            valute.put(getString(R.string.dollars), 76d);
+            if (sharedPreferences.contains(getString(R.string.euro))) {
+                valute.remove(getString(R.string.euro));
+                valute.put(getString(R.string.euro), Double.parseDouble(sharedPreferences.getString(getString(R.string.euro), "90")));
+            }
+            if (sharedPreferences.contains(getString(R.string.dollars))) {
+                valute.remove(getString(R.string.dollars));
+                valute.put(getString(R.string.dollars), Double.parseDouble(sharedPreferences.getString(getString(R.string.dollars), "90")));
+            }
+        }
+        catch (Exception e) {
+            Log.d("DB", e.getMessage());
+        }
+
+        initTranses();
+        fillFields(db);
+        fillTranses(db);
+    }
+
     @SuppressLint("SetTextI18n")
     void fillFields(SQLiteDatabase db) {
         int number;
         try {
+            Log.d("DB", "1");
             @SuppressLint("Recycle") Cursor cursor = db.query("Wallets", new String[]{"_id", "Name"}, null, null, null, null, null);
             cursor.moveToLast();
+            Log.d("DB", String.valueOf(cursor.getCount()));
             name.setText(cursor.getString(cursor.getColumnIndex("Name")));
+            Log.d("DB", "3");
             number = cursor.getInt(cursor.getColumnIndex("_id"));
+            Log.d("DB", "4");
             money.setText(DBComands.getMoney(db, number).toString());
+            Log.d("DB", "5");
             trans.setVisibility(View.VISIBLE);
+            Log.d("DB", "a");
         } catch (Exception e) {
             name.setText("Ни одного счёта не создано");
             money.setText("");
             dbComands.onUpgrade(db, 0, 1);
             trans.setVisibility(View.INVISIBLE);
+            Log.d("DB", e.getMessage());
         }
     }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HomeBookKeeping</string>
+    <string name="app_name">KkozBookKeeping</string>
     <string name="add_trans">Добавить транзакцию</string>
     <string name="add_wallet_name">Введине название счёта</string>
     <string name="button_add">Добавить</string>
@@ -17,4 +17,6 @@
     <string name="each_day">Ежедневно</string>
     <string name="synchronize">Синхронизировать</string>
     <string name="load_from_file">Восстановить из файла</string>
+    <string name="save_val_file">vals</string>
+    <string name="file_online">Online</string>
 </resources>

@@ -2,6 +2,7 @@ package com.work.homebookkeeping;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,13 +29,20 @@ public class DBComands extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE Wallets (_id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS Courses (_id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Coef REAL)");
+        /*db.execSQL("CREATE TABLE IF NOT EXISTS Courses (_id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Coef REAL)");
+        Cursor cursor = db.query("Courses", new String[]{"_id"}, null, null, null, null, null);
+        if (cursor.getCount() == 0) {
+            HashMap<String, Double> a = new HashMap<String, Double>();
+            a.put("Евро", (double) 90);
+            a.put("Доллар", (double) 76);
+            DBComands.setCourses(db, a);
+        }*/
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         for (int j = 0; j < 100; j++)
-            db.execSQL("DROP TABLE IF EXISTS DATABASE" + i);
+            db.execSQL("DROP TABLE IF EXISTS DATABASE" + j);
         db.execSQL("DROP TABLE IF EXISTS Wallets");
         onCreate(db);
     }
@@ -44,7 +52,7 @@ public class DBComands extends SQLiteOpenHelper {
         return str;
     }
 
-    public static HashMap<String, Double> getCourses(SQLiteDatabase db) {
+    /*public static HashMap<String, Double> getCourses(SQLiteDatabase db) {
         HashMap<String, Double> courses = new HashMap<String, Double>();
         @SuppressLint("Recycle") Cursor cursor = db.query("Courses", new String[] {"Name", "Coef"}, null, null, null, null, null);
         cursor.moveToFirst();
@@ -60,7 +68,7 @@ public class DBComands extends SQLiteOpenHelper {
             db.execSQL("INSERT INTO Courses (Name, Coef) VALUES (" + QuotedStr(tmp.getKey()) + ", " + tmp.getValue() + ")");
             Log.d("DB", tmp.getKey() + tmp.getValue());
         }
-    }
+    }*/
 
     @SuppressLint("Recycle")
     public static List<Trans> getTranses(SQLiteDatabase db, String name) {
@@ -78,10 +86,11 @@ public class DBComands extends SQLiteOpenHelper {
                 trans = new Trans();
                 trans.setDate(cursor.getString(cursor.getColumnIndex("DateTrans")));
                 trans.setSum(cursor.getDouble(cursor.getColumnIndex("Sum")));
+                Log.d("DB", "qwerty" + trans.getSum());
                 trans.setVal(whatVal(cursor.getInt(cursor.getColumnIndex("Val"))));
                 trans.setComment(cursor.getString(cursor.getColumnIndex("Comment")));
                 if (cursor.getInt(cursor.getColumnIndex("Val")) != 0) {
-                    trans.setSumR(sumRoubles(db, trans.getSum(), trans.getVal()));
+                    trans.setSumR(sumRoubles(trans.getSum(), cursor.getString(cursor.getColumnIndex("Val"))));
                     trans.setRub(false);
                 }
                 else {
@@ -92,6 +101,7 @@ public class DBComands extends SQLiteOpenHelper {
                 cursor.moveToNext();
             }
         } catch (Exception e) {
+            Log.d("DB", "getTrances " + e.getMessage());
             return new ArrayList<Trans>();
         }
         return transes;
@@ -112,24 +122,27 @@ public class DBComands extends SQLiteOpenHelper {
     }
 
     public static Double getMoney(SQLiteDatabase db, Integer number) {
-        Double sum = (double) 0;
+        double sum = 0;
+        //HashMap<String, Double> val = getCourses(db);
         @SuppressLint("Recycle") Cursor cursor = db.query("DATABASE" + number.toString(), new String[] {"Sum", "Val"}, null, null, null, null, null);
         cursor.moveToFirst();
         do {
-            switch (cursor.getInt(cursor.getColumnIndex("Val"))) {
+            /*switch (cursor.getInt(cursor.getColumnIndex("Val"))) {
                 case 0:
                     sum += cursor.getDouble(cursor.getColumnIndex("Sum"));
                     break;
                 case 1:
-                    sum += cursor.getDouble(cursor.getColumnIndex("Sum")) * OptionsActivity.euro;
+                    sum += cursor.getDouble(cursor.getColumnIndex("Sum")) * val.get("Евро");
                     break;
                 case 2:
-                    sum += cursor.getDouble(cursor.getColumnIndex("Sum")) * OptionsActivity.dollar;
+                    sum += cursor.getDouble(cursor.getColumnIndex("Sum")) * val.get("Доллар");
                     break;
                 default:
                     break;
-            }
+            }*/
+            sum += sumRoubles(cursor.getDouble(cursor.getColumnIndex("Sum")), cursor.getString(cursor.getColumnIndex("Val")));
         } while (cursor.moveToNext());
+        Log.d("DB", "getMoney" + sum);
         return sum;
     }
 
@@ -171,9 +184,12 @@ public class DBComands extends SQLiteOpenHelper {
         }
     }
 
-    public static Double sumRoubles(SQLiteDatabase db, Double sum, String val) {
-        HashMap<String, Double> courses = getCourses(db);
-        Double sumR = sum * courses.get(val);
-        return sumR;
+    public static Double sumRoubles(Double sum, String val) {
+        Log.d("DB", val);
+        Log.d("DB", String.valueOf(Integer.valueOf(val)));
+        Log.d("DB", whatVal(Integer.valueOf(val)));
+        Log.d("DB", "aaaa" + String.valueOf(sum));
+        Log.d("DB", "aaaa " + String.valueOf(MainActivity.valute.get(whatVal(Integer.valueOf(val)))));
+        return sum * MainActivity.valute.get(whatVal(Integer.valueOf(val)));
     }
 }
